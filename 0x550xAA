@@ -1,0 +1,34 @@
+	org	0x7c00
+ 
+	jmp entry
+	db	0x90
+ 
+entry:
+	mov ax,0			;设置段寄存器
+	mov ss,ax
+	mov ds,ax
+	mov es,ax
+	mov sp,0x7c00		;设置栈顶指针
+ 
+	mov si,msg			;要打印的字符串所在地址
+putloop:
+	mov al,[si]			;取出一个字符
+	add	si,1			;字符串指针后移
+	cmp al,0			;取出的字符是否为'\0'
+	je	halt			;如果是，则挂起系统
+	;不是则打印字符
+	mov ah,0x0e			;黑底白字
+	mov bx,15
+	int 0x10			;调用已有的中断程序打印字符
+	jmp	putloop			;继续打印
+	
+halt:
+	hlt
+	jmp	halt
+ 
+msg:
+	db	"hello os world!"
+	db	0
+	
+times	510-($-$$)	db	0     ;$-$$下一条指令减去代码段,剩下得空间填充0到510个字节
+	db	0x55,0xaa
